@@ -7,8 +7,14 @@ class ZipMediaflowService extends BaseApplicationComponent
     public function download($files, $filename)
     { 
         // Set destination zip
-        $destZip = craft()->path->getTempPath() . $filename . '.zip';
+        $destZip = craft()->path->getTempPath() . $filename . '-' . time() . '.zip';
+        $finalZip = craft()->path->getTempPath() . $filename . '.zip';
         
+        // Remove destination zip if exists
+        if (file_exists($destZip)) {
+            unlink($destZip);
+        }
+            
         // Create the zipfile
         IOHelper::createFile($destZip);
         
@@ -22,8 +28,16 @@ class ZipMediaflowService extends BaseApplicationComponent
             Zip::add($destZip, $img, craft()->path->getTempPath());
         }
             
-        // Return zip destination
-        return $destZip;
+        // Remove final zip if exists
+        if (file_exists($finalZip)) {
+            unlink($finalZip);
+        }
+        
+        // Rename zip
+        rename($destZip, $finalZip);
+        
+        // Return final destination
+        return $finalZip;
     }
     
 }
